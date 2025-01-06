@@ -1,8 +1,8 @@
 import express from 'express';
-import { getTest } from '../../controller/testController.js';
+import { getTasks } from '../../controller/controller.js';
 
 const router = express.Router();
 
-router.get('/', getTest);
+router.get('/', getTasks);
 
 export default router;

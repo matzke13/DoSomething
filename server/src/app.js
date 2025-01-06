@@ -6,7 +6,7 @@ import cors from 'cors';
 import debug from 'debug';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
-import testRoute from './api/routes/testRoutes.js';
+import taskRoute from './api/routes/routes.js';
 
 dotenv.config();
 debug.enable(process.env.DEBUG); // enable DEBUG from .env
@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.static(path.join(dirname, '/public')));
 app.use(express.json());
 
-app.use('/test', testRoute);
+app.use('/tasks', taskRoute);
 
 app.use(errorHandler);
 app.use(notFound);
