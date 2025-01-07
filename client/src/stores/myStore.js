@@ -1,17 +1,18 @@
 // ------ setup version -------
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import axios from 'axios';
 
 export const useMyStore = defineStore('myStore', () => {
-  const data = ref([]);
+  const message = ref('Viel Erfolg!');
 
-  const getTaks = () => {
-    const response = axios.get('https://qkkuzqrwzosycvqxwoda.supabase.co/rest/v1/Tasks');
-    data.value = response.data;
-  };
-
-  return { data, getTaks };
+  return { message };
 });
 
-
+// ------ option version -------
+// import { defineStore } from 'pinia';
+//
+// export const useMyStore = defineStore('myStore', {
+//   state: () => ({ message: 'Viel Erfolg!' }),
+//   getters: {},
+//   actions: {},
+// });
