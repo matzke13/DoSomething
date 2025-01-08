@@ -2,45 +2,40 @@
 import { ref } from 'vue';
 
 const leftDrawerOpen = ref(false);
-const rightDrawerOpen = ref(false);
 
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
-};
-
-const toggleRightDrawer = () => {
-  rightDrawerOpen.value = !rightDrawerOpen.value;
 };
 </script>
 
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header elevated class="bg-primary text-white" height-hint="98">
+    <q-header elevated class="custom-header" height-hint="98">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
           <q-avatar>
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
+            <img src="./assets/logo.png" />
           </q-avatar>
           Title
         </q-toolbar-title>
-
-        <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
       </q-toolbar>
-
-      <q-tabs align="left">
-        <q-route-tab to="/" label="Home" />
-        <q-route-tab to="/about" label="About" />
-      </q-tabs>
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" side="left" bordered>
-      <!-- drawer content -->
-    </q-drawer>
-
-    <q-drawer v-model="rightDrawerOpen" side="right" bordered>
-      <!-- drawer content -->
+      <q-list>
+        <q-item clickable v-ripple to="/">
+          <q-item-section>
+            Home
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple to="/about">
+          <q-item-section>
+            About
+          </q-item-section>
+        </q-item>
+      </q-list>
     </q-drawer>
 
     <q-page-container>
@@ -50,22 +45,11 @@ const toggleRightDrawer = () => {
 </template>
 
 <style>
-@font-face {
-  font-family: 'Montserrat';
-  src: url('/fonts/Montserrat/Montserrat-Regular.ttf') format('truetype');
+.custom-header {
+  background-color: #04163E; /* Deine gewünschte Farbe */
+  color: white; /* Textfarbe */
 }
-
-@font-face {
-  font-family: 'Lora';
-  src: url('/fonts/Lora/Lora-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'LibreBodoni';
-  src: url('/fonts/LibreBodoni/LibreBodoni-Regular.ttf') format('truetype');
-}
-
 * {
-  font-family: 'Montserrat';
+  font-family: 'Arial';
 }
 </style>
