@@ -18,7 +18,7 @@ const toggleLeftDrawer = () => {
           <q-avatar>
             <img src="./assets/logo.png" />
           </q-avatar>
-          Title
+          DoSomething
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
