@@ -10,13 +10,13 @@ const toggleLeftDrawer = () => {
 
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header elevated class="custom-header" height-hint="98">
+    <q-header elevated class="bg-primary text-white" height-hint="98">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
           <q-avatar>
-            <img src="./assets/logo.png" />
+            <img src="/icons/favicon.svg" />
           </q-avatar>
           DoSomething
         </q-toolbar-title>

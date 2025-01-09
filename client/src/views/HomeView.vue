@@ -14,7 +14,7 @@
       <template v-slot:body-cell-completed="props">
         <div style="text-align: center;">
           <img 
-            :src="props.row.completed ? 'http://localhost:3000/icons/checkmark.svg' : 'http://localhost:3000/icons/crossmark.svg'" 
+            :src="props.row.completed ? '/icons/checkmark.svg' : '/icons/crossmark.svg'" 
             alt="Completed Status" 
             style="width: 30px; height: 30px; object-fit: cover;" 
           />
@@ -56,7 +56,7 @@
         <div class="card-row">
           <strong>Completed:</strong>
           <img 
-            :src="row.completed ? 'http://localhost:3000/icons/checkmark.svg' : 'http://localhost:3000/icons/crossmark.svg'" 
+            :src="row.completed ? '/icons/checkmark.svg' : '/icons/crossmark.svg'" 
             alt="Completed Status" 
             style="width: 30px; height: 30px; object-fit: cover;" 
           />
@@ -87,6 +87,8 @@ const rows = computed(() => myStore.data);
 // Daten abrufen, wenn die Komponente gemountet wird
 onMounted(() => {
   myStore.getTasks();
+  console.log('Sebastian Matzke');
+  
 });
 
 // Überprüfen, ob der Benutzer auf einem mobilen Gerät ist
