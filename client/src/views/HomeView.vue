@@ -10,26 +10,30 @@
       flat
       class="responsive-table"
     >
-      <!-- Slot für 'Completed' Spalte -->
       <template v-slot:body-cell-completed="props">
-        <div style="text-align: center;">
+        <q-td style="text-align: center;">
           <img 
             :src="props.row.completed ? '/icons/checkmark.svg' : '/icons/crossmark.svg'" 
             alt="Completed Status" 
             style="width: 30px; height: 30px; object-fit: cover;" 
           />
-        </div>
+        </q-td>
       </template>
 
-      <!-- Slot für 'Image' Spalte -->
       <template v-slot:body-cell-image="props">
-        <div style="text-align: center;">
+        <q-td style="text-align: center;">
           <img 
-            :src="props.row.image_url" 
+            :src="props.row.image_url || '/icons/default-image.svg'" 
             alt="Image" 
             style="width: 50px; height: 50px; object-fit: cover;" 
           />
-        </div>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-actions="props">
+        <q-td style="text-align: center; display: flex; justify-content: center; gap: 8px;">
+          <q-btn color="red" label="DELETE" @click="removeTask(props.row.id)" />
+        </q-td>
       </template>
     </q-table>
 
@@ -39,7 +43,7 @@
         <div class="card-row">
           <strong>Image:</strong>
           <img 
-            :src="row.image_url" 
+            :src="row.image_url || '/icons/default-image.svg'" 
             alt="Image" 
             style="width: 50px; height: 50px; object-fit: cover;" 
           />
@@ -61,6 +65,10 @@
             style="width: 30px; height: 30px; object-fit: cover;" 
           />
         </div>
+        <div class="card-row" style="display: flex; justify-content: center; gap: 8px;">
+          <q-btn color="blue" label="Bearbeiten" @click="editTask(row)" />
+          <q-btn color="red" label="Entfernen" @click="removeTask(row.id)" />
+        </div>
       </div>
     </div>
   </div>
@@ -68,9 +76,8 @@
 
 <script setup>
 import { useMyStore } from '@/stores/myStore';
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, onUnmounted, computed, ref } from 'vue';
 
-// Store importieren
 const myStore = useMyStore();
 
 const columns = [
@@ -79,23 +86,33 @@ const columns = [
   { name: 'description', label: 'Description', align: 'left', field: 'description', sortable: true },
   { name: 'duedate', label: 'Due Date', align: 'left', field: 'duedate', sortable: true },
   { name: 'completed', label: 'Completed', align: 'center', field: 'completed', sortable: true },
+  { name: 'actions', label: 'Actions', align: 'center', field: 'actions', sortable: false },
 ];
 
-// Computed Property für die Zeilen
 const rows = computed(() => myStore.data);
+const isMobile = ref(false);
 
-// Daten abrufen, wenn die Komponente gemountet wird
-onMounted(() => {
-  myStore.getTasks();
-  console.log('Sebastian Matzke');
-  
-});
-
-// Überprüfen, ob der Benutzer auf einem mobilen Gerät ist
-const isMobile = ref(window.innerWidth <= 768);
-window.addEventListener('resize', () => {
+const handleResize = () => {
   isMobile.value = window.innerWidth <= 768;
+};
+
+onMounted(async () => {
+  await myStore.getTasks();
+  handleResize();
+  window.addEventListener('resize', handleResize);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+
+const editTask = (task) => {
+  console.log('Bearbeiten:', task);
+};
+
+const removeTask = (taskId) => {
+  console.log('Entfernen:', taskId);
+};
 </script>
 
 <style>

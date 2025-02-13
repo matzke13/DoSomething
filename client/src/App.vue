@@ -35,6 +35,11 @@ const toggleLeftDrawer = () => {
             About
           </q-item-section>
         </q-item>
+        <q-item clickable v-ripple to="/create">
+          <q-item-section>
+            Task erstellen
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
