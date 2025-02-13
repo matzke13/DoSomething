@@ -12,26 +12,35 @@
     >
       <template v-slot:body-cell-completed="props">
         <q-td style="text-align: center;">
-          <img 
-            :src="props.row.completed ? '/icons/checkmark.svg' : '/icons/crossmark.svg'" 
-            alt="Completed Status" 
-            style="width: 30px; height: 30px; object-fit: cover;" 
+          <img
+            :src="props.row.completed ? '/icons/checkmark.svg' : '/icons/crossmark.svg'"
+            alt="Completed Status"
+            style="width: 30px; height: 30px; object-fit: cover;"
           />
         </q-td>
       </template>
 
       <template v-slot:body-cell-image="props">
         <q-td style="text-align: center;">
-          <img 
-            :src="props.row.image_url || '/icons/default-image.svg'" 
-            alt="Image" 
-            style="width: 50px; height: 50px; object-fit: cover;" 
+          <img
+            :src="props.row.image_url || '/icons/default-image.svg'"
+            alt="Image"
+            style="width: 50px; height: 50px; object-fit: cover;"
           />
         </q-td>
       </template>
 
       <template v-slot:body-cell-actions="props">
-        <q-td style="text-align: center; display: flex; justify-content: center; gap: 8px;">
+        <q-td style="text-align: center; display: flex; justify-content: center; gap: 8px; align-items: center;">
+          <!--
+            Anstelle von v-model, verwenden wir :model-value und @update:model-value,
+            um den neuen Boolean-Wert (val) direkt abzufangen.
+          -->
+          <q-toggle
+            :model-value="props.row.completed"
+            @update:model-value="val => toggleCompleted(props.row, val)"
+            :color="props.row.completed ? 'green' : 'grey'"
+          />
           <q-btn color="red" label="DELETE" @click="removeTask(props.row.id)" />
         </q-td>
       </template>
@@ -42,10 +51,10 @@
       <div v-for="row in rows" :key="row.id" class="card">
         <div class="card-row">
           <strong>Image:</strong>
-          <img 
-            :src="row.image_url || '/icons/default-image.svg'" 
-            alt="Image" 
-            style="width: 50px; height: 50px; object-fit: cover;" 
+          <img
+            :src="row.image_url || '/icons/default-image.svg'"
+            alt="Image"
+            style="width: 50px; height: 50px; object-fit: cover;"
           />
         </div>
         <div class="card-row">
@@ -59,10 +68,10 @@
         </div>
         <div class="card-row">
           <strong>Completed:</strong>
-          <img 
-            :src="row.completed ? '/icons/checkmark.svg' : '/icons/crossmark.svg'" 
-            alt="Completed Status" 
-            style="width: 30px; height: 30px; object-fit: cover;" 
+          <q-toggle
+            :model-value="row.completed"
+            @update:model-value="val => toggleCompleted(row, val)"
+            :color="row.completed ? 'green' : 'grey'"
           />
         </div>
         <div class="card-row" style="display: flex; justify-content: center; gap: 8px;">
@@ -75,10 +84,10 @@
 </template>
 
 <script setup>
-import { useMyStore } from '@/stores/myStore';
-import { onMounted, onUnmounted, computed, ref } from 'vue';
+import { useTaskStore } from '@/stores/taskStore'
+import { onMounted, onUnmounted, computed, ref } from 'vue'
 
-const myStore = useMyStore();
+const taskStore = useTaskStore()
 
 const columns = [
   { name: 'image', label: 'Image', align: 'center', field: 'image_url', sortable: false },
@@ -86,33 +95,40 @@ const columns = [
   { name: 'description', label: 'Description', align: 'left', field: 'description', sortable: true },
   { name: 'duedate', label: 'Due Date', align: 'left', field: 'duedate', sortable: true },
   { name: 'completed', label: 'Completed', align: 'center', field: 'completed', sortable: true },
-  { name: 'actions', label: 'Actions', align: 'center', field: 'actions', sortable: false },
-];
+  { name: 'actions', label: 'Actions', align: 'center', field: 'actions', sortable: false }
+]
 
-const rows = computed(() => myStore.data);
-const isMobile = ref(false);
+const rows = computed(() => taskStore.tasks)
+const isMobile = ref(false)
 
 const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768;
-};
+  isMobile.value = window.innerWidth <= 768
+}
+
+// Die Toggle-Funktion nimmt jetzt den neuen Wert (val) entgegen
+// und schickt diesen als boolean an unseren Store.
+const toggleCompleted = async (task, newVal) => {
+  console.log('Toggling completed status for:', task.id, '->', newVal)
+  await taskStore.updateTask(task.id, { completed: newVal })
+}
+
+const removeTask = async (taskId) => {
+  await taskStore.deleteTask(taskId)
+}
 
 onMounted(async () => {
-  await myStore.getTasks();
-  handleResize();
-  window.addEventListener('resize', handleResize);
-});
+  await taskStore.getTasks()
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-});
+  window.removeEventListener('resize', handleResize)
+})
 
 const editTask = (task) => {
-  console.log('Bearbeiten:', task);
-};
-
-const removeTask = (taskId) => {
-  console.log('Entfernen:', taskId);
-};
+  console.log('Bearbeiten:', task)
+}
 </script>
 
 <style>
