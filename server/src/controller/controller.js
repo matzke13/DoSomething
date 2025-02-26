@@ -24,7 +24,7 @@ export const createTaskController = asyncHandler(async (req, res) => {
   console.log("✅ POST /tasks aufgerufen");
   console.log("📩 Request Body:", req.body);
 
-  const { title, description, duedate, image_url } = req.body;
+  const { title, description, duedate} = req.body;
 
   if (!title || !description || !duedate) {
     console.log("❌ Fehler: Fehlende Felder");
@@ -32,7 +32,7 @@ export const createTaskController = asyncHandler(async (req, res) => {
   }
 
   try {
-    const newTask = await createTask(title, description, duedate, image_url);
+    const newTask = await createTask(title, description, duedate);
     console.log("✅ Task erstellt:", newTask);
     res.status(201).json(newTask);
   } catch (error) {
