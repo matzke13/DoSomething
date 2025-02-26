@@ -21,18 +21,18 @@ export const deleteTask = async (id) => {
 };
 
 // Task erstellen
-export const createTask = async (title, description, duedate, completed = false) => {
+export const createTask = async (title, description, duedate) => {
   console.log("🔄 createTask() wird ausgeführt...");
-  console.log("📥 Eingehende Werte:", { title, description, duedate, completed });
+  console.log("📥 Eingehende Werte:", { title, description, duedate});
 
   try {
     const sql = `
-      INSERT INTO tasks (title, description, duedate, completed) 
-      VALUES ($1, $2, $3, $4, $5) 
+      INSERT INTO tasks (title, description, duedate) 
+      VALUES ($1, $2, $3) 
       RETURNING *;
     `;
 
-    const values = [title, description, duedate, completed];
+    const values = [title, description, duedate];
     const { rows } = await query(sql, values);
 
     if (!rows.length) {

@@ -44,7 +44,6 @@
         <q-dialog v-model="showDatePicker">
           <q-date v-model="dueDate" mask="YYYY-MM-DD" :options="dateOptions">
             <div class="row items-center justify-end q-gutter-sm">
-              <q-btn label="Abbrechen" color="grey" flat v-close-popup />
               <q-btn label="OK" color="primary" flat v-close-popup />
             </div>
           </q-date>
@@ -63,12 +62,13 @@
           </q-card>
         </q-dialog>
         
-        <!-- Speichern-Button -->
+        <!-- Speichern-Button: deaktiviert solange das Formular ungültig ist -->
         <q-btn 
           type="submit" 
           label="Speichern" 
           color="primary" 
           class="full-width q-mt-md" 
+          :disable="!isFormValid" 
         />
       </q-form>
     </q-card>
@@ -76,13 +76,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+
+function dataURLtoBlob(dataurl) {
+  const arr = dataurl.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+}
+
+
+
+
+import { ref, computed } from 'vue'
 import { useTaskStore } from '@/stores/taskStore'
+import { Notify } from 'quasar'
 
 // Pinia-Store
 const taskStore = useTaskStore()
 
-// Reaktive Felder (statt data() in Options API)
+// Reaktive Felder
 const title = ref('')
 const description = ref('')
 const dueDate = ref('')
@@ -90,6 +113,13 @@ const showDatePicker = ref(false)
 const showCameraPopup = ref(false)
 const photo = ref(null)
 let stream = null // Wird für die Kamera-Streams benutzt
+
+// Berechnete Eigenschaft, die prüft, ob alle erforderlichen Felder ausgefüllt sind
+const isFormValid = computed(() => {
+  return title.value.trim() !== '' &&
+         description.value.trim() !== '' &&
+         dueDate.value.trim() !== '';
+})
 
 /**
  * Bestimmt, welche Daten im Kalender auswählbar sind.
@@ -155,22 +185,49 @@ function closeCamera() {
 /**
  * Formular absenden: Neue Task anlegen
  */
-async function submitForm() {
+ async function submitForm() {
   const newTask = {
     title: title.value,
     description: description.value,
     duedate: dueDate.value,
-    image_url: photo.value, // "photo" als base64 oder URL
-    completed: false
+  }
+
+  // Falls ein Foto vorhanden ist, hochladen und URL abrufen
+  if (photo.value) {
+    const blob = dataURLtoBlob(photo.value)
+    const fileName = `task_${Date.now()}.png`
+    
+    // Foto in den Supabase Storage-Bucket "images" hochladen
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(fileName, blob)
+
+    if (error) {
+      console.error('Fehler beim Upload:', error)
+      // Optional: Notify.create({ message: 'Upload fehlgeschlagen', color: 'negative' })
+    } else {
+      // Öffentliche URL abrufen
+      const { publicURL } = supabase.storage
+        .from('images')
+        .getPublicUrl(fileName)
+      // Bild-URL in der Datenbank-Spalte "img_url" speichern
+      newTask.img_url = publicURL
+    }
   }
 
   console.log('Formulardaten:', newTask)
 
   try {
-    // An den Pinia-Store senden, der axios POST /tasks ausführt
+    // Task im Pinia-Store speichern (z. B. via axios POST /tasks)
     await taskStore.addTask(newTask)
 
-    // Optional: Felder zurücksetzen
+    // Erfolgsmeldung anzeigen
+    Notify.create({
+      message: 'Task erfolgreich gespeichert!',
+      color: 'positive'
+    })
+
+    // Felder zurücksetzen
     title.value = ''
     description.value = ''
     dueDate.value = ''
@@ -179,6 +236,8 @@ async function submitForm() {
     console.error('Fehler beim Erstellen des Tasks:', error)
   }
 }
+
+
 
 // Video-Ref
 const videoElement = ref(null)

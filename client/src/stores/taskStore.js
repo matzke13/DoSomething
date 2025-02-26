@@ -19,6 +19,8 @@ export const useTaskStore = defineStore('taskStore', () => {
   const addTask = async (task) => {
     try {
       // Hier wird POST /tasks aufgerufen
+      console.log(task);
+      
       const response = await axios.post('http://localhost:3000/tasks', task)
       tasks.value.push(response.data)
     } catch (error) {
