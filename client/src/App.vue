@@ -9,8 +9,19 @@ const toggleLeftDrawer = () => {
 </script>
 
 <template>
-  <q-layout view="hHh lpR fFf">
-    <q-header elevated class="bg-primary text-white" height-hint="98">
+  <!-- 
+    Wichtig: Damit der Header und der Drawer “fixed” sind, 
+    verwenden wir im view-String Großbuchstaben für die 
+    entsprechenden Bereiche (H für Header, L für Left Drawer).
+  -->
+  <q-layout view="hHh LpR fFf">
+    
+    <!-- 
+      Header als fixed markieren:
+      Entweder mit der Prop fixed 
+      oder über das Layout view="hHh".
+    -->
+    <q-header fixed elevated class="bg-primary text-white" height-hint="98">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
@@ -23,7 +34,8 @@ const toggleLeftDrawer = () => {
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" side="left" bordered>
+    <!-- Drawer ebenfalls fixieren -->
+    <q-drawer fixed v-model="leftDrawerOpen" side="left" bordered>
       <q-list>
         <q-item clickable v-ripple to="/">
           <q-item-section>
@@ -51,8 +63,8 @@ const toggleLeftDrawer = () => {
 
 <style>
 .custom-header {
-  background-color: #04163E; /* Deine gewünschte Farbe */
-  color: white; /* Textfarbe */
+  background-color: #04163E;
+  color: white;
 }
 * {
   font-family: 'Arial';

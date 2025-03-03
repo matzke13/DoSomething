@@ -1,8 +1,14 @@
 <template>
   <div class="q-pa-md row items-center justify-center q-gutter-md" style="height: 100vh;">
     <q-card class="q-pa-md" style="width: 400px;">
+      <!-- Überschrift zur Card -->
+       <div class="q-mb-md">
+        <q-card-title class="text-h6 ">Task erstellen</q-card-title>
+       </div>
+
+      
       <!-- Wichtig: "submit.prevent" verhindert das Neuladen der Seite -->
-      <q-form @submit.prevent="submitForm" title="Task erstellen">
+      <q-form @submit.prevent="submitForm">
         <!-- Titel -->
         <q-input 
           v-model="title" 
@@ -82,7 +88,6 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-
 function dataURLtoBlob(dataurl) {
   const arr = dataurl.split(',');
   const mime = arr[0].match(/:(.*?);/)[1];
@@ -94,9 +99,6 @@ function dataURLtoBlob(dataurl) {
   }
   return new Blob([u8arr], { type: mime });
 }
-
-
-
 
 import { ref, computed } from 'vue'
 import { useTaskStore } from '@/stores/taskStore'
@@ -185,7 +187,7 @@ function closeCamera() {
 /**
  * Formular absenden: Neue Task anlegen
  */
- async function submitForm() {
+async function submitForm() {
   const newTask = {
     title: title.value,
     description: description.value,
@@ -195,7 +197,7 @@ function closeCamera() {
   // Falls ein Foto vorhanden ist, hochladen und URL abrufen
   if (photo.value) {
     const blob = dataURLtoBlob(photo.value)
-    const fileName = `task_${Date.now()}.png`
+    const fileName = `${title.value}.png`
     
     // Foto in den Supabase Storage-Bucket "images" hochladen
     const { data, error } = await supabase.storage
@@ -204,7 +206,6 @@ function closeCamera() {
 
     if (error) {
       console.error('Fehler beim Upload:', error)
-      // Optional: Notify.create({ message: 'Upload fehlgeschlagen', color: 'negative' })
     } else {
       // Öffentliche URL abrufen
       const { publicURL } = supabase.storage
@@ -223,9 +224,11 @@ function closeCamera() {
 
     // Erfolgsmeldung anzeigen
     Notify.create({
-      message: 'Task erfolgreich gespeichert!',
-      color: 'positive'
-    })
+  message: 'Task erfolgreich gespeichert!',
+  color: 'positive',
+  position: 'top'
+})
+
 
     // Felder zurücksetzen
     title.value = ''
@@ -236,8 +239,6 @@ function closeCamera() {
     console.error('Fehler beim Erstellen des Tasks:', error)
   }
 }
-
-
 
 // Video-Ref
 const videoElement = ref(null)

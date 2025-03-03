@@ -9,7 +9,9 @@
       row-key="id"
       flat
       class="responsive-table"
+      :rows-per-page-options="[0]"
     >
+      <!-- completed-Template -->
       <template v-slot:body-cell-completed="props">
         <q-td style="text-align: center;">
           <img
@@ -20,22 +22,39 @@
         </q-td>
       </template>
 
+      <!-- image-Template -->
       <template v-slot:body-cell-image="props">
         <q-td style="text-align: center;">
           <img
-            :src="props.row.image_url || '/icons/default-image.svg'"
+            :src="`https://qkkuzqrwzosycvqxwoda.supabase.co/storage/v1/object/public/images/${props.row.title}.jpg`"
             alt="Image"
             style="width: 50px; height: 50px; object-fit: cover;"
+            @error="
+              (e) => {
+                // Falls gerade das .jpg geladen werden sollte, versuche nun stattdessen .png
+                if (e.target.src.endsWith('.jpg')) {
+                  e.target.src = e.target.src.replace('.jpg', '.png')
+                } 
+                // Falls bereits .png versucht wurde, nutze am Ende das Fallback cross.png
+                else {
+                  e.target.src = '/icons/cross.png'
+                }
+              }
+            "
           />
         </q-td>
       </template>
 
+      <!-- NEU: description-Template mit geringerer Höhe -->
+      <template v-slot:body-cell-description="props">
+        <q-td style="max-height: 50px; overflow: auto;">
+          {{ props.row.description }}
+        </q-td>
+      </template>
+
+      <!-- actions-Template -->
       <template v-slot:body-cell-actions="props">
-        <q-td style="text-align: center; display: flex; justify-content: center; gap: 8px; align-items: center;">
-          <!--
-            Anstelle von v-model, verwenden wir :model-value und @update:model-value,
-            um den neuen Boolean-Wert (val) direkt abzufangen.
-          -->
+        <q-td style="text-align: center; ">
           <q-toggle
             :model-value="props.row.completed"
             @update:model-value="val => toggleCompleted(props.row, val)"
@@ -92,7 +111,13 @@ const taskStore = useTaskStore()
 const columns = [
   { name: 'image', label: 'Image', align: 'center', field: 'image_url', sortable: false },
   { name: 'title', required: true, label: 'Title', align: 'left', field: 'title', sortable: true },
-  { name: 'description', label: 'Description', align: 'left', field: 'description', sortable: true },
+  {
+    name: 'description',
+    label: 'Description',
+    align: 'left',
+    field: 'description',
+    sortable: true
+  },
   { name: 'duedate', label: 'Due Date', align: 'left', field: 'duedate', sortable: true },
   { name: 'completed', label: 'Completed', align: 'center', field: 'completed', sortable: true },
   { name: 'actions', label: 'Actions', align: 'center', field: 'actions', sortable: false }
@@ -105,8 +130,6 @@ const handleResize = () => {
   isMobile.value = window.innerWidth <= 768
 }
 
-// Die Toggle-Funktion nimmt jetzt den neuen Wert (val) entgegen
-// und schickt diesen als boolean an unseren Store.
 const toggleCompleted = async (task, newVal) => {
   console.log('Toggling completed status for:', task.id, '->', newVal)
   await taskStore.updateTask(task.id, { completed: newVal })
@@ -135,6 +158,13 @@ const editTask = (task) => {
 .responsive-table {
   width: 100%;
 }
+
+/* Optional kann man hier auch eine Klasse verwenden:
+.description-cell {
+  max-height: 50px;
+  overflow: auto;
+}
+*/
 
 @media (max-width: 768px) {
   .q-table thead {
