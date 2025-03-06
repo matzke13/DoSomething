@@ -139,28 +139,28 @@ function dateOptions(date) {
  */
  async function startCamera() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { exact: "environment" } } // Außenkamera auf Mobilgeräten
-    });
+    // Prüfe zuerst, ob das Gerät Zugriff auf Mediengeräte hat
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
 
-    // Video-Element referenzieren und Stream zuweisen
-    videoElement.value.srcObject = stream;
-  } catch (error) {
-    console.error('Fehler beim Zugriff auf die Kamera:', error);
-    
-    // Falls die Außenkamera nicht verfügbar ist, nutze die Standardkamera
-    if (error.name === "OverconstrainedError") {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" }
-        });
-        videoElement.value.srcObject = stream;
-      } catch (fallbackError) {
-        console.error('Fallback-Kamera-Fehler:', fallbackError);
+    let constraints = { video: { facingMode: "environment" } }; // Standardmäßig Außenkamera
+
+    // Falls mehrere Kameras vorhanden sind, wähle explizit die Rückkamera
+    if (videoDevices.length > 1) {
+      const backCamera = videoDevices.find(device => device.label.toLowerCase().includes("back"));
+      if (backCamera) {
+        constraints = { video: { deviceId: { exact: backCamera.deviceId } } };
       }
     }
+
+    // Starte den Kamera-Stream mit den gewählten Constraints
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+    videoElement.value.srcObject = stream;
+  } catch (error) {
+    console.error("Fehler beim Zugriff auf die Kamera:", error);
   }
 }
+
 
 
 /**
