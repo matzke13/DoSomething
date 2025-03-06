@@ -4,11 +4,12 @@ import axios from 'axios'
 
 export const useTaskStore = defineStore('taskStore', () => {
   const tasks = ref([])
+  const API = import.meta.env.VITE_PROD_URL
 
   // Alle Tasks abrufen
   const getTasks = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/tasks')
+      const response = await axios.get('/tasks')
       tasks.value = response.data
     } catch (error) {
       console.error('Fehler beim Abrufen der Tasks:', error)
@@ -21,7 +22,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       // Hier wird POST /tasks aufgerufen
       console.log(task);
       
-      const response = await axios.post('http://localhost:3000/tasks', task)
+      const response = await axios.post(API + '/tasks', task)
       tasks.value.push(response.data)
     } catch (error) {
       console.error('Fehler beim Erstellen des Tasks:', error)
@@ -31,7 +32,7 @@ export const useTaskStore = defineStore('taskStore', () => {
   // Task aktualisieren
   const updateTask = async (id, updates) => {
     try {
-      await axios.patch(`http://localhost:3000/tasks/${id}`, updates)
+      await axios.patch(`${API}/tasks/${id}`, updates)
       const task = tasks.value.find((t) => t.id === id)
       if (task) {
         Object.assign(task, updates)
@@ -44,7 +45,7 @@ export const useTaskStore = defineStore('taskStore', () => {
   // Task löschen
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/tasks/${id}`)
+      await axios.delete(`${API}/tasks/${id}`)
       tasks.value = tasks.value.filter((t) => t.id !== id)
     } catch (error) {
       console.error('Fehler beim Löschen des Tasks:', error)
