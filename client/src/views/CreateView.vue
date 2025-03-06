@@ -137,15 +137,31 @@ function dateOptions(date) {
 /**
  * Kamera starten: UserMedia-Zugriff anfordern und Video füllen.
  */
-async function startCamera() {
+ async function startCamera() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true })
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { exact: "environment" } } // Außenkamera auf Mobilgeräten
+    });
+
     // Video-Element referenzieren und Stream zuweisen
-    videoElement.value.srcObject = stream
+    videoElement.value.srcObject = stream;
   } catch (error) {
-    console.error('Fehler beim Zugriff auf die Kamera:', error)
+    console.error('Fehler beim Zugriff auf die Kamera:', error);
+    
+    // Falls die Außenkamera nicht verfügbar ist, nutze die Standardkamera
+    if (error.name === "OverconstrainedError") {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" }
+        });
+        videoElement.value.srcObject = stream;
+      } catch (fallbackError) {
+        console.error('Fallback-Kamera-Fehler:', fallbackError);
+      }
+    }
   }
 }
+
 
 /**
  * Kamera-Popup öffnen
