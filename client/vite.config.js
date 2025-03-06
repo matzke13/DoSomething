@@ -10,9 +10,7 @@ import manifest from './manifest.js'
 export default defineConfig({
   server: {
     port: 8080,
-    proxy: {
-      '/test': 'http://localhost:3000/',
-    },
+    host: '0.0.0.0',
   },
   plugins: [
     vue({
