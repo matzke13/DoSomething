@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <!-- Tabelle -->
+    <!-- Tabelle (Desktop-Ansicht) -->
     <q-table
       v-if="!isMobile"
       title="Tasks"
@@ -26,26 +26,19 @@
       <template v-slot:body-cell-image="props">
         <q-td style="text-align: center;">
           <img
-            :src="`https://qkkuzqrwzosycvqxwoda.supabase.co/storage/v1/object/public/images/${props.row.title}.jpg`"
+            :src="
+              'https://qkkuzqrwzosycvqxwoda.supabase.co/storage/v1/object/public/images/' +
+              props.row.title +
+              '.jpg'
+            "
             alt="Image"
             style="width: 50px; height: 50px; object-fit: cover;"
-            @error="
-              (e) => {
-                // Falls gerade das .jpg geladen werden sollte, versuche nun stattdessen .png
-                if (e.target.src.endsWith('.jpg')) {
-                  e.target.src = e.target.src.replace('.jpg', '.png')
-                } 
-                // Falls bereits .png versucht wurde, nutze am Ende das Fallback cross.png
-                else {
-                  e.target.src = '/icons/cross.png'
-                }
-              }
-            "
+            @error="handleImageError"
           />
         </q-td>
       </template>
 
-      <!-- NEU: description-Template mit geringerer Höhe -->
+      <!-- description-Template -->
       <template v-slot:body-cell-description="props">
         <q-td style="max-height: 50px; overflow: auto;">
           {{ props.row.description }}
@@ -54,7 +47,7 @@
 
       <!-- actions-Template -->
       <template v-slot:body-cell-actions="props">
-        <q-td style="text-align: center; ">
+        <q-td style="text-align: center;">
           <q-toggle
             :model-value="props.row.completed"
             @update:model-value="val => toggleCompleted(props.row, val)"
@@ -65,15 +58,20 @@
       </template>
     </q-table>
 
-    <!-- Kartenansicht für Mobile Geräte -->
+    <!-- Kartenansicht (Mobile) -->
     <div v-else class="card-wrapper">
       <div v-for="row in rows" :key="row.id" class="card">
         <div class="card-row">
           <strong>Image:</strong>
           <img
-            :src="row.image_url || '/icons/default-image.svg'"
+            :src="
+              'https://qkkuzqrwzosycvqxwoda.supabase.co/storage/v1/object/public/images/' +
+              row.title +
+              '.jpg'
+            "
             alt="Image"
             style="width: 50px; height: 50px; object-fit: cover;"
+            @error="handleImageError"
           />
         </div>
         <div class="card-row">
@@ -93,7 +91,10 @@
             :color="row.completed ? 'green' : 'grey'"
           />
         </div>
-        <div class="card-row" style="display: flex; justify-content: center; gap: 8px;">
+        <div
+          class="card-row"
+          style="display: flex; justify-content: center; gap: 8px;"
+        >
           <q-btn color="blue" label="Bearbeiten" @click="editTask(row)" />
           <q-btn color="red" label="Entfernen" @click="removeTask(row.id)" />
         </div>
@@ -152,19 +153,25 @@ onUnmounted(() => {
 const editTask = (task) => {
   console.log('Bearbeiten:', task)
 }
+
+/**
+ * Fehlerbehandlung für das Bild:
+ * 1) Wenn .jpg nicht geht, versuche .png
+ * 2) Falls .png auch nicht geht, Fallback-Icon
+ */
+function handleImageError(e) {
+  if (e.target.src.endsWith('.jpg')) {
+    e.target.src = e.target.src.replace('.jpg', '.png')
+  } else {
+    e.target.src = '/icons/cross.png'
+  }
+}
 </script>
 
 <style>
 .responsive-table {
   width: 100%;
 }
-
-/* Optional kann man hier auch eine Klasse verwenden:
-.description-cell {
-  max-height: 50px;
-  overflow: auto;
-}
-*/
 
 @media (max-width: 768px) {
   .q-table thead {
