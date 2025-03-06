@@ -9,7 +9,7 @@ export const useTaskStore = defineStore('taskStore', () => {
   // Alle Tasks abrufen
   const getTasks = async () => {
     try {
-      const response = await axios.get('/tasks')
+      const response = await axios.get(API + '/tasks')
       tasks.value = response.data
     } catch (error) {
       console.error('Fehler beim Abrufen der Tasks:', error)
