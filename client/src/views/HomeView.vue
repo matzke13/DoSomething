@@ -95,7 +95,7 @@
           class="card-row"
           style="display: flex; justify-content: center; gap: 8px;"
         >
-          <q-btn color="blue" label="Bearbeiten" @click="editTask(row)" />
+
           <q-btn color="red" label="Entfernen" @click="removeTask(row.id)" />
         </div>
       </div>
@@ -150,9 +150,6 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-const editTask = (task) => {
-  console.log('Bearbeiten:', task)
-}
 
 /**
  * Fehlerbehandlung für das Bild:
